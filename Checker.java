@@ -16,7 +16,6 @@ Tests:
 
 import java.io.BufferedReader;
 import java.io.File;
-import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.FileReader;
 import java.io.IOException;
@@ -42,51 +41,7 @@ public class Checker {
         Unzip.searchResultFolder(correctionPath);
     }
 
-    // TODO: Folgendes Problem
-    // Wenn in einer Zip datei unterordner vorhanden entpackt er diese nicht richtig
-    // ...
     public class Unzip {
-
-        // Private class Dataelements
-        private static FileInputStream fis;
-
-        /*
-         * // Methode zum entpacken einer .zip Datei
-         * public static void unzip(String zipFilePath, String destDir) {
-         * File dir = new File(destDir);
-         * if (!dir.exists())
-         * dir.mkdir(); // Falls destDir noch nicht exisitert, dann wird er hier
-         * erstellt
-         * 
-         * byte[] buffer = new byte[1024]; // zwischenspeicher zum lesen und schreib von
-         * daten
-         * try {
-         * fis = new FileInputStream(zipFilePath);
-         * ZipInputStream zis = new ZipInputStream(fis);
-         * ZipEntry ze = zis.getNextEntry();
-         * while (ze != null) {
-         * String fileName = ze.getName();
-         * File newFile = new File(destDir + File.separator + fileName);
-         * System.out.println("Unzipping to " + newFile.getAbsolutePath());
-         * new File(newFile.getParent()).mkdirs(); // erstellt unterordner von der zip
-         * datei
-         * FileOutputStream fos = new FileOutputStream(newFile);
-         * int len;
-         * while ((len = zis.read(buffer)) > 0) {
-         * fos.write(buffer, 0, len);
-         * }
-         * fos.close();
-         * zis.closeEntry(); // schliesst den aktuellen Zip Eintrag
-         * ze = zis.getNextEntry();
-         * }
-         * zis.closeEntry();
-         * zis.close();
-         * fis.close();
-         * } catch (IOException e) {
-         * e.printStackTrace();
-         * }
-         * }
-         */
 
         public static void testUnzip(String zipFilePath, String destDir) {
             byte[] buffer = new byte[1024];
@@ -170,16 +125,18 @@ public class Checker {
         public static void moveFilesFromSubfoldersToFolder(String resultFolder) {
             try {
                 File[] result = new File(resultFolder).listFiles(File::isDirectory);
-                for (File dirs: result) {
+                for (File dirs : result) {
                     String resultPath = dirs.getParent();
                     if (dirs.isDirectory() && !dirs.toString().contains("__MACOSX")) {
                         System.out.println("Aktuelles Verzeichnis: " + dirs);
                         moveFilesFromSubfoldersToFolder(dirs.getAbsolutePath());
                         // Dateien werden nun verschoben
                         File[] files = dirs.listFiles(File::isFile);
-                        for (File f: files) {
-                            if (f.toString().endsWith(".java") || f.toString().endsWith(".pdf") || f.toString().endsWith(".txt"))
-                            System.out.println("Datei: " + f.getName() + " wurde erfolgreich nach " + resultPath + " verschoben");
+                        for (File f : files) {
+                            if (f.toString().endsWith(".java") || f.toString().endsWith(".pdf")
+                                    || f.toString().endsWith(".txt"))
+                                System.out.println("Datei: " + f.getName() + " wurde erfolgreich nach " + resultPath
+                                        + " verschoben");
                             Path sourcePath = f.toPath();
                             Path targetPath = new File(resultPath).toPath();
                             Path desPath = targetPath.resolve(f.getName());
