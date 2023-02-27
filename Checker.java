@@ -15,13 +15,17 @@ Tests:
 */
 
 import java.io.BufferedReader;
+import java.io.BufferedWriter;
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.FileReader;
+import java.io.FileWriter;
 import java.io.IOException;
 import java.io.InputStream;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.nio.file.Paths;
+import java.util.Arrays;
 import java.util.Enumeration;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -29,16 +33,38 @@ import java.util.zip.ZipEntry;
 import java.util.zip.ZipFile;
 
 public class Checker {
+    // Private Dataelements
     private static final String desktopPath = "/Users/tomlauth/Desktop/";
     private static final String zipFile = "Uebungsblatt_5.zip";
-    private static final String correctionPath = "/Users/tomlauth/Desktop/Korrektur";
+    private static final String correctionPath = "/Users/tomlauth/Desktop/Korrektur/";
+
+    private static Path checkFilePath = Paths.get(correctionPath + "Check.txt");
+    private static File checkFile = checkFilePath.toFile();
+
+    private static final int TASKS = 5;
 
     public static void main(String[] args) {
+        try {
+            // @TestRuns
+            Unzip.testUnzip(desktopPath + zipFile, correctionPath);
+            Unzip.checkCorrrectionFolder(correctionPath);
+            Unzip.searchResultFolder(correctionPath);
 
-        // @TestRuns
-        Unzip.testUnzip(desktopPath + zipFile, correctionPath);
-        Unzip.checkCorrrectionFolder(correctionPath);
-        Unzip.searchResultFolder(correctionPath);
+            // Check File wird hier erstellt
+            // Diese Datei wird benutzt um die Korrektur der einzelnen Gruppen zu bewerten
+            if (!checkFilePath.toFile().exists()) {
+                checkFilePath.toFile().createNewFile();
+                System.out.println("Check File wurde erstellt");
+            } else {
+                System.out.println("Check File exisitiert bereits schon");
+            }
+
+            listGroups(correctionPath);
+
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+
     }
 
     public class Unzip {
@@ -80,7 +106,6 @@ public class Checker {
             } catch (IOException e) {
                 e.printStackTrace();
             }
-
         }
 
         // Die Methode durchsucht den 'Korrektur' Ordner nach .zip Dateien
@@ -150,6 +175,77 @@ public class Checker {
         }
     }
 
+    public static void listGroups(String correctionPath) {
+        File[] groups = new File(correctionPath).listFiles();
+        Arrays.sort(groups);
+        for (File group : groups) {
+            String groupname = group.getName().replaceAll("^(\\w+)_.*$", "$1");
+            System.out.println("\nGruppennamen: " + groupname);
+            // normalerweise wird hier die writeIntoFile() Methode aufgerufen
+            if (group.isDirectory())
+                getResultFolder(group, groupname);
+        }
+    }
+
+    public static void getResultFolder(File group, String groupname) {
+        File[] dirs = group.listFiles();
+        for (File dir : dirs) {
+            if (dir.isDirectory() && !dir.getName().equals("1_task")) {
+                if (dir.getName().equals("Result")) {
+                    // writeIntoFile Methode soll hier aufgerufen werden
+                    writeIntoFile(dir, groupname);
+                    // System.out.println(dir);
+                }
+                getResultFolder(dir, groupname);
+            }
+        }
+    }
+
+    public static void writeIntoFile(File result, String groupname) {
+        File[] files = result.listFiles(e -> e.isFile() && e.getName().endsWith(".java")); // hole mir alle dateien, die
+                                                                                           // mit .java enden
+        File[] txtFile = result.listFiles(e -> e.isFile() && e.getName().endsWith(".txt")); // hole mir nur die .txt
+                                                                                            // Dateien wo die Mitglieder
+                                                                                            // drinnen stehen
+        Arrays.stream(txtFile).forEach(e -> {
+            writeMembersToFile(e, groupname);
+        });
+    }
+
+    public static void writeMembersToFile(File file, String groupname) {
+        try {
+            BufferedReader reader = new BufferedReader(new FileReader(file));
+            BufferedWriter writer = new BufferedWriter(new FileWriter(checkFile,true));
+
+            String line, tasks = generateTasks(TASKS);
+            writer.newLine();
+            writer.write("Gruppennamen: " + groupname + "\n");
+            while ((line = reader.readLine()) != null) {
+                // Den Gruppennamen als erstes waere ganz geil
+                writer.write(line);
+                writer.newLine();
+            }
+            writer.write(tasks + "\n");
+            writer.newLine();
+
+            reader.close();
+            writer.close();
+        } catch (Exception e) {
+            e.printStackTrace();
+        } 
+    }
+
+    public static String generateTasks(int tasks) {
+        String result = "";
+        for (int i = 1; i <= tasks; i++) {
+            String tmp = "Aufgabe " + i + ": " + "0" + "\n";
+            result += tmp;
+        }
+        result += "Gesamt: 0 / 20";
+        return result;
+    }
+
+    @Deprecated
     // Die Methode ueberprueft eine Java Datei nach Umlauten
     public static void checkUmlauts(String file) {
         try {
