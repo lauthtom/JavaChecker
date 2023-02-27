@@ -140,8 +140,8 @@ public class Checker {
                     checkCorrrectionFolder(f.getAbsolutePath());
 
                 if (f.toString().endsWith(".zip")) {
-                    System.out.println("ZipDatei Pfad: " + f.getAbsolutePath() + "\n" +
-                            "destDir Pfad: " + f.getParent());
+                    // System.out.println("ZipDatei Pfad: " + f.getAbsolutePath() + "\n" +
+                    // "destDir Pfad: " + f.getParent());
                     result = new File(f.getParent() + "/Result");
                     testUnzip(f.getAbsolutePath(), result.toString()); // wenn eine zip-Datei gefunden worden ist soll
                                                                        // diese
@@ -155,8 +155,9 @@ public class Checker {
             for (File f : folder) {
                 if (f.isDirectory() && !f.getName().equals("1_task")) {
                     if (f.getName().equals("Result")) {
-                        System.out.println("Result Ordner Pfad: " + f.getAbsolutePath());
+                        // System.out.println("Result Ordner Pfad: " + f.getAbsolutePath());
                         moveFilesFromSubfoldersToFolder(f.getAbsolutePath());
+                        System.out.println();
                     }
                     searchResultFolder(f.getAbsolutePath());
                 }
@@ -168,94 +169,28 @@ public class Checker {
         // und die dateien verschieben
         public static void moveFilesFromSubfoldersToFolder(String resultFolder) {
             try {
-                System.out.println("Result Pfad 2: " + resultFolder);
-                // File[] result = new File(resultFolder).listFiles(File::isDirectory);
-                // for (File file : result) {
-                //     // System.out.println("Datei: " + file.getName());
-                //     if (!file.getPath().toString().contains("__MACOSX")) {
-                //         // System.out.println("Pfad: " + file.getPath());
-                //         moveFilesFromSubfoldersToFolder(file.toString());
-                //         File[] subfolder = file.listFiles(File::isDirectory); 
-                //         for (File f : subfolder) {
-                //             File[] files = f.listFiles();
-                //             for (File ff : files) {
-                //                 if (ff.toString().endsWith(".java") || ff.toString().endsWith(".pdf") || ff.toString().endsWith(".txt"))
-                //                 System.out.println("Datei: " + ff.getAbsolutePath());
-                //             }
-                //         }
-                //         // for (File f : files) {
-                //         //     System.out.println("Dateien: " + f.toPath());
-                //         //     Path sourcePath = f.toPath();
-                //         //     Path desPath = new File(file.getParent()).toPath();
-                //             // System.out.println("Source: " + sourcePath.toAbsolutePath() + "\n" + 
-                //                 // "Destination: " + desPath.toAbsolutePath());
-                //             // Files.move(sourcePath, desPath);
-                //         // }
-                //         // System.out.println("Dateien: " + f.getAbsolutePath());
-                //         // System.out.println("Dir gefunden: " + file.getAbsolutePath() + "\n" +
-                //         // "Result Pfad: " + file.getParent());
-                //     }
-                // }
-                // for (File subfolder : subfolders) {
-                // File[] files = subfolder.listFiles();
-                // for (File file : files) {
-                // if (file.isFile() && !file.exists()) {
-                // Path sourcePath = file.toPath();
-                // Path destPath = new File(resultFolder, file.getName()).toPath();
-                // Files.move(sourcePath, destPath);
-                // }
-                // }
-                // }
+                File[] result = new File(resultFolder).listFiles(File::isDirectory);
+                for (File dirs: result) {
+                    String resultPath = dirs.getParent();
+                    if (dirs.isDirectory() && !dirs.toString().contains("__MACOSX")) {
+                        System.out.println("Aktuelles Verzeichnis: " + dirs);
+                        moveFilesFromSubfoldersToFolder(dirs.getAbsolutePath());
+                        // Dateien werden nun verschoben
+                        File[] files = dirs.listFiles(File::isFile);
+                        for (File f: files) {
+                            if (f.toString().endsWith(".java") || f.toString().endsWith(".pdf") || f.toString().endsWith(".txt"))
+                            System.out.println("Datei: " + f.getName() + " wurde erfolgreich nach " + resultPath + " verschoben");
+                            Path sourcePath = f.toPath();
+                            Path targetPath = new File(resultPath).toPath();
+                            Path desPath = targetPath.resolve(f.getName());
+                            Files.move(sourcePath, desPath);
+                        }
+                    }
+                }
             } catch (Exception e) {
                 e.printStackTrace();
             }
         }
-    }
-
-    // TODO: Brauch ich die Klasse ueberhaupt noch, wenn ich den 'Result' Ordner
-    // direkt mit der unzip Methode erstelle ?
-    private class MoveFiles {
-
-        private static void moveJavaFiles(String sourceDir, String targetDir) {
-            File source = new File(sourceDir), target = new File(targetDir);
-
-            if (!source.exists())
-                System.out.println("Dateipfad exisitiert nicht!.");
-
-            if (!target.exists()) {
-                System.out.println("Zielpfad existiert nicht, wird aber jetzt erstellt!");
-                target.mkdir();
-                moveJavaFiles(source, target);
-            } else {
-                System.out.println("Target Directory is already there");
-            }
-
-        }
-
-        // Die methode bekommt einen dateipfad (normalerweise die UXGXY Gruppen)
-        // erstellt einen "Result" Ordner und verschiebt alle dateien in den Ordner
-        // Geht auch rekursiv in die verschiedenen Unterordner (falls vorhanden) und
-        // verschiebt die Dateien auch
-        private static void moveJavaFiles(File source, File target) {
-            File[] files = source.listFiles();
-            if (files != null) {
-                for (File file : files) {
-                    if (file.isDirectory()) {
-                        moveJavaFiles(file, target);
-                    } else if (file.toString().endsWith(".java") || file.toString().endsWith(".txt")
-                            || file.toString().endsWith(".pdf")) {
-                        File newFile = new File(target.getAbsolutePath() + File.separator + file.getName());
-                        if (file.renameTo(newFile)) {
-                            System.out.println(
-                                    file.getAbsolutePath() + " wurde verschoben zu " + newFile.getAbsolutePath());
-                        } else {
-                            System.out.println(file.getAbsolutePath() + " konnte nicht verschoben werden");
-                        }
-                    }
-                }
-            }
-        }
-
     }
 
     // Die Methode ueberprueft eine Java Datei nach Umlauten
