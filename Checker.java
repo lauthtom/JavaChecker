@@ -1,19 +1,3 @@
-/* 
-TODOS:
-- gibt uebersichtlicher die verschiedenen Ergebnisse der Gruppen aus (Bessere Ausgabe)
-- Wenn eine .zip Datei mehrere .zip Dateien enthaelt, dann soll das Programm alle .zip Dateien auch entpacken (rekursiv)
-- Eine Klasse schreiben, die mir eine BewertungXY.txt erstellt und mir eine Vorlage erstellt und schon die vorhandenen Mitglieder.txt zu den jeweiligen Gruppen schreiben
-- Eventuell eine schoenere Eingabe per Kommandozeilenparameter ... 
-- Kommandozeilenparameter bitte noch in der main pruefen, fehlermeldung sollte ein Beispiel fuer einen Aufruf zeigen
-
-Bedienung: 
-- Die "String path" variable benoetigt einen pfad zur .zip Datei und name braucht den namen der .zip Datei
-- Die unzip.() Methode braucht noch den Gruppen Namen z.B. (UXGXY) und einen pfad 
-
-Tests: 
-- Testen ob die Version auch auf einem Windows System funktioniert (evtl. Typ pruefung) --> hat funktioniert, keine weitere typ pruefeung notwendig 
-*/
-
 import java.io.BufferedReader;
 import java.io.BufferedWriter;
 import java.io.File;
@@ -33,7 +17,7 @@ import java.util.zip.ZipEntry;
 import java.util.zip.ZipFile;
 
 public class Checker {
-    // Private Dataelements
+    // private data elements
     private static final String desktopPath = "/Users/tomlauth/Desktop/";
     private static final String zipFile = "Uebungsblatt_5.zip";
     private static final String correctionPath = "/Users/tomlauth/Desktop/Korrektur/";
@@ -41,12 +25,12 @@ public class Checker {
     private static Path checkFilePath = Paths.get(correctionPath + "Check.txt");
     private static File checkFile = checkFilePath.toFile();
 
-    private static final int TASKS = 5;
+    private static final int COUNT_OF_TASKS = 5;
 
     public static void main(String[] args) {
         try {
             // @TestRuns
-            Unzip.testUnzip(desktopPath + zipFile, correctionPath);
+            Unzip.unzipFolder(desktopPath + zipFile, correctionPath);
             Unzip.checkCorrrectionFolder(correctionPath);
             Unzip.searchResultFolder(correctionPath);
 
@@ -60,6 +44,7 @@ public class Checker {
             }
 
             listGroups(correctionPath);
+            System.out.println("Es wurde fertig in die Check.txt geschrieben!");
 
         } catch (Exception e) {
             e.printStackTrace();
@@ -69,7 +54,7 @@ public class Checker {
 
     public class Unzip {
 
-        public static void testUnzip(String zipFilePath, String destDir) {
+        public static void unzipFolder(String zipFilePath, String destDir) {
             byte[] buffer = new byte[1024];
             File destDirFile = new File(destDir);
             if (!destDirFile.exists()) {
@@ -123,7 +108,7 @@ public class Checker {
                     // System.out.println("ZipDatei Pfad: " + f.getAbsolutePath() + "\n" +
                     // "destDir Pfad: " + f.getParent());
                     result = new File(f.getParent() + "/Result");
-                    testUnzip(f.getAbsolutePath(), result.toString()); // wenn eine zip-Datei gefunden worden ist soll
+                    unzipFolder(f.getAbsolutePath(), result.toString()); // wenn eine zip-Datei gefunden worden ist soll
                                                                        // diese
                     // noch entpackt werden.
                 }
@@ -206,9 +191,14 @@ public class Checker {
                                                                                            // mit .java enden
         File[] txtFile = result.listFiles(e -> e.isFile() && e.getName().endsWith(".txt")); // hole mir nur die .txt
                                                                                             // Dateien wo die Mitglieder
-                                                                                            // drinnen stehen
+        // Jede .txt datei durchgehen und diese in die Check.txt schreiben                                                                                    // drinnen stehen
         Arrays.stream(txtFile).forEach(e -> {
             writeMembersToFile(e, groupname);
+        });
+
+        // Jede .java datei durchgehen und diese nach umlauten ueberpuefen
+        Arrays.stream(files).forEach(e -> {
+            System.out.println("Java Datei: " + e);
         });
     }
 
@@ -217,15 +207,13 @@ public class Checker {
             BufferedReader reader = new BufferedReader(new FileReader(file));
             BufferedWriter writer = new BufferedWriter(new FileWriter(checkFile,true));
 
-            String line, tasks = generateTasks(TASKS);
-            writer.newLine();
-            writer.write("Gruppennamen: " + groupname + "\n");
+            String line, tasks = generateTasks(COUNT_OF_TASKS);
+            writer.write("\nGruppennamen: " + groupname + "\n");
             while ((line = reader.readLine()) != null) {
-                // Den Gruppennamen als erstes waere ganz geil
                 writer.write(line);
                 writer.newLine();
             }
-            writer.write(tasks + "\n");
+            writer.write("\n" + tasks + "\n");
             writer.newLine();
 
             reader.close();
@@ -241,12 +229,11 @@ public class Checker {
             String tmp = "Aufgabe " + i + ": " + "0" + "\n";
             result += tmp;
         }
-        result += "Gesamt: 0 / 20";
+        result += "\nGesamt: 0 / 20"  + "\n";
         return result;
     }
 
     @Deprecated
-    // Die Methode ueberprueft eine Java Datei nach Umlauten
     public static void checkUmlauts(String file) {
         try {
             File tmp = new File(file);
