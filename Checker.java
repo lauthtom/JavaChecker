@@ -20,7 +20,7 @@ public class Checker {
     // private data elements
     private static final String desktopPath = "/Users/tomlauth/Desktop/";
     private static final String zipFile = "Uebungsblatt_5.zip";
-    private static final String correctionPath = "/Users/tomlauth/Desktop/Korrektur/";
+    private static final String correctionPath = desktopPath + "Korrektur/";
 
     private static Path checkFilePath = Paths.get(correctionPath + "Check.txt");
     private static File checkFile = checkFilePath.toFile();
