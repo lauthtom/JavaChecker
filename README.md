@@ -7,8 +7,14 @@ Als erstes sollte man sich das Repository in einen beliebigen Pfad klonen mit
 
 Danach sollte man sicher gehen, dass man ist im richtigen Verzeichnis wo auch der Ordner **JavaChecker** ist. 
 
-Bevor allerdings der Checker gestartet werden kann, müssen zuerst Benutzerspezifische Änderungen im Code vorgenommen werden. ![Datenelemente](https://i.ibb.co/RC9jpWK/Bildschirm-foto-2023-02-28-um-14-55-37.png)
-Wie oben im Bild zu sehen ist gibt es drei wichtige Datenelemente die vom Benutzer aus spezifisch immer angepasst werden müssen. Die Variable `desktopPath` benötigt einen gültigen Pfad zum Desktop. Die Variable `zipFile` fordert den Namen der .zip Datei. Zuletzt braucht die Variable `correctionPath` einen gültigen Pfad zum Korrektur Ordner (Der Ordner muss zu der Zeit noch nicht existieren)
+Bevor allerdings der Checker gestartet werden kann, müssen zuerst Benutzerspezifische Änderungen im Code vorgenommen werden. 
+
+> private  static  final  String  desktopPath = "/Users/BenutzerXY/Desktop/";
+> private  static  final  String  zipFile = "Uebungsblatt_5.zip";
+> private  static  final  String  correctionPath = "/Users/BenutzerXY/Desktop/Korrektur/";
+> private  static  final  int  COUNT_OF_TASKS = 5;
+
+Wie oben zu sehen ist gibt es 4 wichtige Datenelemente die vom Benutzer aus spezifisch immer angepasst werden müssen. Die Variable `desktopPath` benötigt einen gültigen Pfad zum Desktop. Die Variable `zipFile` fordert den Namen der .zip Datei. Außerdem braucht die Variable `correctionPath` einen gültigen Pfad zum Korrektur Ordner (Der Ordner muss zu der Zeit noch nicht existieren). Zuletzt verlangt die Variable `COUNT_OF_TASKS` eine Anzahl der Aufgaben die im aktuellen Aufgabenblatt vorhanden sind.
 
 Wenn diese dann angepasst wurden steht dem Start nichts mehr im Wege. Den Checker kann man nun von der Kommandozeile mit folgendem Befehl `javac Checker.java && java Checker` aus starten. 
 
