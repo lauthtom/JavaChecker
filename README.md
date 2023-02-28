@@ -12,7 +12,7 @@ Bevor allerdings der Checker gestartet werden kann, müssen zuerst Benutzerspezi
 `private  static  final  String  desktopPath = "/Users/BenutzerXY/Desktop/";`\
 `private  static  final  String  zipFile = "Uebungsblatt_5.zip";`\
 `private  static  final  String  correctionPath = desktopPath + "Korrektur/"`\
-`private  static  final  int  COUNT_OF_TASKS = 5;`\
+`private  static  final  int  COUNT_OF_TASKS = 5;`
 
 Wie oben zu sehen ist gibt es 4 wichtige Datenelemente die vom Benutzer aus spezifisch immer angepasst werden müssen. Die Variable `desktopPath` benötigt einen gültigen Pfad zum Desktop. Die Variable `zipFile` fordert den Namen der .zip Datei. Außerdem braucht die Variable `correctionPath` einen gültigen Pfad zum Korrektur Ordner (Der Ordner muss zu der Zeit noch nicht existieren). Zuletzt verlangt die Variable `COUNT_OF_TASKS` eine Anzahl der Aufgaben die im aktuellen Aufgabenblatt vorhanden sind.
 
