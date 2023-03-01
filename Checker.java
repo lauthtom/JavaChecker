@@ -1,6 +1,7 @@
 import java.io.BufferedReader;
 import java.io.BufferedWriter;
 import java.io.File;
+import java.io.FileFilter;
 import java.io.FileOutputStream;
 import java.io.FileReader;
 import java.io.FileWriter;
@@ -17,6 +18,7 @@ import java.util.zip.ZipEntry;
 import java.util.zip.ZipFile;
 
 public class Checker {
+
     // private data elements
     private static final String desktopPath = "/Users/tomlauth/Desktop/";
     private static final String zipFile = "Uebungsblatt_5.zip";
@@ -29,23 +31,28 @@ public class Checker {
 
     public static void main(String[] args) {
         try {
-            // @TestRuns
-            Unzip.unzipFolder(desktopPath + zipFile, correctionPath);
-            Unzip.checkCorrrectionFolder(correctionPath);
-            Unzip.searchResultFolder(correctionPath);
+            if (!new File(correctionPath).exists()) {
+                // Korrektur Ordner existiert noch nicht zum Zeitpunkt
 
-            // Check File wird hier erstellt
-            // Diese Datei wird benutzt um die Korrektur der einzelnen Gruppen zu bewerten
-            if (!checkFilePath.toFile().exists()) {
-                checkFilePath.toFile().createNewFile();
-                System.out.println("Check File wurde erstellt");
+                // @TestRuns
+                Unzip.unzipFolder(desktopPath + zipFile, correctionPath);
+                Unzip.checkCorrrectionFolder(correctionPath);
+                Unzip.searchResultFolder(correctionPath);
+
+                // Check File wird hier erstellt
+                // Diese Datei wird benutzt um die Korrektur der einzelnen Gruppen zu bewerten
+                if (!checkFilePath.toFile().exists()) {
+                    checkFilePath.toFile().createNewFile();
+                    System.out.println("Check File wurde erstellt");
+                } else {
+                    System.out.println("Check File exisitiert bereits schon");
+                }
+
+                listGroups(correctionPath);
+                System.out.println("Es wurde fertig in die Check.txt geschrieben!");
             } else {
-                System.out.println("Check File exisitiert bereits schon");
+                System.out.println("Ein Korrektur Ordner besteht schon. Bitte den Ordner vorher l\u00F6schen oder Umbenennen");
             }
-
-            listGroups(correctionPath);
-            System.out.println("Es wurde fertig in die Check.txt geschrieben!");
-
         } catch (Exception e) {
             e.printStackTrace();
         }
@@ -53,7 +60,6 @@ public class Checker {
     }
 
     public class Unzip {
-
         public static void unzipFolder(String zipFilePath, String destDir) {
             byte[] buffer = new byte[1024];
             File destDirFile = new File(destDir);
@@ -109,7 +115,7 @@ public class Checker {
                     // "destDir Pfad: " + f.getParent());
                     result = new File(f.getParent() + "/Result");
                     unzipFolder(f.getAbsolutePath(), result.toString()); // wenn eine zip-Datei gefunden worden ist soll
-                                                                       // diese
+                                                                         // diese
                     // noch entpackt werden.
                 }
             }
@@ -135,16 +141,24 @@ public class Checker {
         public static void moveFilesFromSubfoldersToFolder(String resultFolder) {
             try {
                 File[] result = new File(resultFolder).listFiles(File::isDirectory);
+                File check = new File(".DS_Store");
                 for (File dirs : result) {
                     String resultPath = dirs.getParent();
                     if (dirs.isDirectory() && !dirs.toString().contains("__MACOSX")) {
                         System.out.println("Aktuelles Verzeichnis: " + dirs);
                         moveFilesFromSubfoldersToFolder(dirs.getAbsolutePath());
                         // Dateien werden nun verschoben
-                        File[] files = dirs.listFiles(File::isFile);
+                        File[] files = dirs.listFiles(new FileFilter() {
+                            // damit wird sichergestellt, dass keine versteckten Dateien 
+                            // mit in den Array aufgenommen z.B. '.DS_Store'
+                            @Override
+                            public boolean accept(File pathname) {
+                                return !pathname.isHidden();
+                            }
+                        });
                         for (File f : files) {
-                            if (f.toString().endsWith(".java") || f.toString().endsWith(".pdf")
-                                    || f.toString().endsWith(".txt"))
+                            if ((f.toString().endsWith(".java") || f.toString().endsWith(".pdf")
+                                    || f.toString().endsWith(".txt")) && !check.isHidden())
                                 System.out.println("Datei: " + f.getName() + " wurde erfolgreich nach " + resultPath
                                         + " verschoben");
                             Path sourcePath = f.toPath();
@@ -191,7 +205,8 @@ public class Checker {
                                                                                            // mit .java enden
         File[] txtFile = result.listFiles(e -> e.isFile() && e.getName().endsWith(".txt")); // hole mir nur die .txt
                                                                                             // Dateien wo die Mitglieder
-        // Jede .txt datei durchgehen und diese in die Check.txt schreiben                                                                                    // drinnen stehen
+        // Jede .txt datei durchgehen und diese in die Check.txt schreiben // drinnen
+        // stehen
         Arrays.stream(txtFile).forEach(e -> {
             writeMembersToFile(e, groupname);
         });
@@ -199,13 +214,15 @@ public class Checker {
         // Jede .java datei durchgehen und diese nach umlauten ueberpuefen
         Arrays.stream(files).forEach(e -> {
             System.out.println("Java Datei: " + e);
+            // methoden aufruf fehlt noch um jede einzelne .java datei auf
+            // umlaute zu uberpruefen ...
         });
     }
 
     public static void writeMembersToFile(File file, String groupname) {
         try {
             BufferedReader reader = new BufferedReader(new FileReader(file));
-            BufferedWriter writer = new BufferedWriter(new FileWriter(checkFile,true));
+            BufferedWriter writer = new BufferedWriter(new FileWriter(checkFile, true));
 
             String line, tasks = generateTasks(COUNT_OF_TASKS);
             writer.write("\nGruppennamen: " + groupname + "\n");
@@ -220,7 +237,7 @@ public class Checker {
             writer.close();
         } catch (Exception e) {
             e.printStackTrace();
-        } 
+        }
     }
 
     public static String generateTasks(int tasks) {
@@ -229,7 +246,7 @@ public class Checker {
             String tmp = "Aufgabe " + i + ": " + "0" + "\n";
             result += tmp;
         }
-        result += "\nGesamt: 0 / 20"  + "\n";
+        result += "\nGesamt: 0 / 20" + "\n";
         return result;
     }
 
