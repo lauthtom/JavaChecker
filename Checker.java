@@ -172,6 +172,9 @@ public class Checker {
 
         /**
          * Beschreibung:
+         * Geht den 'Result' der jeweiligen Gruppe durch und durchsucht nach Unterordner,
+         * falls es welche gibt werden die dateien von dort in den 'Result' Ordner verschoben,
+         * sodass am Ende alle Dateien im 'Result' Ordner liegen und man keine Unterordner mehr hat
          * 
          * @param resultFolder -> benoetigt den Pfad des 'Result' Ordner der jeweiligen
          *                     aktuellen Gruppe
@@ -184,20 +187,17 @@ public class Checker {
                     if (dirs.isDirectory() && !dirs.toString().contains("__MACOSX")) {
                         System.out.println("Aktuelles Verzeichnis: " + dirs);
                         moveFilesFromSubfoldersToFolder(dirs.getAbsolutePath());
-                        // Dateien werden nun verschoben
                         File[] files = dirs.listFiles(new FileFilter() {
-                            // damit wird sichergestellt, dass keine versteckten Dateien
-                            // mit in das Array aufgenommen z.B. '.DS_Store'
                             @Override
                             public boolean accept(File pathname) {
+                                // Damit wird sichergestellt, dass keine versteckten 
+                                // Dateien mit verschoben werden
                                 return !pathname.isHidden();
                             }
                         });
                         for (File f : files) {
                             if ((f.toString().endsWith(".java") || f.toString().endsWith(".pdf")
                                     || f.toString().endsWith(".txt"))) {
-                                // System.out.println("Datei: " + f.getName() + " wurde erfolgreich nach " + resultPath
-                                //         + " verschoben");
                                 Path sourcePath = f.toPath();
                                 Path targetPath = new File(resultPath).toPath();
                                 Path desPath = targetPath.resolve(f.getName());
@@ -212,44 +212,60 @@ public class Checker {
         }
     }
 
+    /**
+     * Beschreibung:
+     * Sortiert die Gruppen aufsteigend, so dass man eine Normale Reihenfolge hat.
+     * Außerdem filtert sie den Gruppennamen aus einen langem String
+     * 
+     * @param correctionPath -> Bekommt als Parameter den Pfad des 'Korrektur' Ordners
+     */
     public static void listGroups(String correctionPath) {
         File[] groups = new File(correctionPath).listFiles();
         Arrays.sort(groups);
         for (File group : groups) {
             String groupname = group.getName().replaceAll("^(\\w+)_.*$", "$1");
             System.out.println(groupname.startsWith("U") ? "\nGruppennamen: " + groupname : "");
-            // normalerweise wird hier die writeIntoFile() Methode aufgerufen
             if (group.isDirectory())
                 getResultFolder(group, groupname);
         }
     }
 
+    /**
+     * Beschreibung: 
+     * Die Methode ruft sich solange rekursiv selber auf, bis in einer Gruppe den 'Result'
+     * Ordner gefunden hat.
+     * 
+     * @param group -> benoetigt die Gruppe als aktuelle File / Ordner
+     * @param groupname -> Bekommt als Parameter den gefilterten Gruppenname der jeweiligen Gruppe
+     */
     public static void getResultFolder(File group, String groupname) {
         File[] dirs = group.listFiles();
         for (File dir : dirs) {
             if (dir.isDirectory() && !dir.getName().equals("1_task")) {
                 if (dir.getName().equals("Result")) {
-                    // writeIntoFile Methode soll hier aufgerufen werden
                     writeIntoFile(dir, groupname);
-                    // System.out.println(dir);
                 }
                 getResultFolder(dir, groupname);
             }
         }
     }
 
+    /**
+     * Beschreibung: 
+     * Es wird in der Methode nach .java und .txt Dateien gefiltert. 
+     * Damit werden dann jeweils die entsprechenden Methoden aufgerufen.
+     * 
+     * @param result -> Bekommt als parameter den 'Result' Ordner der aktuellen Gruppe als File uebergeben
+     * @param groupname -> Bekommt als Parameter den gefilterten Gruppenname der jeweiligen Gruppe
+     */
     public static void writeIntoFile(File result, String groupname) {
-        File[] files = result.listFiles(e -> e.isFile() && e.getName().endsWith(".java")); // hole mir alle dateien, die
-                                                                                           // mit .java enden
-        File[] txtFile = result.listFiles(e -> e.isFile() && e.getName().endsWith(".txt")); // hole mir nur die .txt
-                                                                                            // Dateien wo die Mitglieder
-        // Jede .txt datei durchgehen und diese in die Check.txt schreiben // drinnen
-        // stehen
+        File[] files = result.listFiles(e -> e.isFile() && e.getName().endsWith(".java")); 
+        File[] txtFile = result.listFiles(e -> e.isFile() && e.getName().endsWith(".txt"));
+
         Arrays.stream(txtFile).forEach(e -> {
             writeMembersToFile(e, groupname);
         });
 
-        // Jede .java datei durchgehen und diese nach umlauten ueberpuefen
         Arrays.stream(files).forEach(e -> {
             System.out.println("Java Datei: " + e);
             // methoden aufruf fehlt noch um jede einzelne .java datei auf
@@ -257,6 +273,15 @@ public class Checker {
         });
     }
 
+    /**
+     * Beschreibung: 
+     * Die Methode nimmt als Grundlage die 'Mitglieder.txt' und schreibt den Inhalt davon
+     * in die 'Check.txt' Datei. Dabei werden die anderen Gruppen jeweilis immer angehaengt,
+     * sodass alle Mitglieder in einer Datei stehen.
+     * 
+     * @param file -> Braucht als Parameter den Ordner der aktuellen Gruppe
+     * @param groupname -> Benoetigt noch von der Gruppe den Gruppennamen
+     */
     public static void writeMembersToFile(File file, String groupname) {
         try {
             BufferedReader reader = new BufferedReader(new FileReader(file));
@@ -278,6 +303,14 @@ public class Checker {
         }
     }
 
+    /**
+     * Beschreibung:
+     * Die Methode generiert einen String, der als Aufbau n Aufgaben und eine Gesamtzahl enthaelt.
+     * 
+     * @param tasks -> Bekommt als Parameter die Anzahl der zu bearbeitenden Aufgaben.
+     * @return -> Die Methode gibt einen String zurueck, der aus den Aufgaben 0 .. -> n 
+     * und einer Gesamtzahl besteht. 
+     */
     public static String generateTasks(int tasks) {
         String result = "";
         for (int i = 1; i <= tasks; i++) {
