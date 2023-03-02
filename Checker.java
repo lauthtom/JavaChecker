@@ -17,9 +17,16 @@ import java.util.regex.Pattern;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipFile;
 
+/**
+ *  @author veroeffentlicht und entwickelt von Tom Lauth
+ */
+
 public class Checker {
 
-    // private data elements
+    /*
+     * Hier muessen Benutzerspezifische Aenderungen vorgenommen werden.
+     * Weitere infos sind in der README Datei zu lesen
+     */
     private static final String desktopPath = "/Users/tomlauth/Desktop/";
     private static final String zipFile = "Uebungsblatt_5.zip";
     private static final String correctionPath = desktopPath + "Korrektur/";
@@ -31,16 +38,20 @@ public class Checker {
 
     public static void main(String[] args) {
         try {
+            /*
+             * wird ueberprueft, ob ein Korrektur Ordner schon bereits vor der Erstellung
+             * des eigentlichen Korrektur Ordners existiert
+             */
             if (!new File(correctionPath).exists()) {
-                // Korrektur Ordner existiert noch nicht zum Zeitpunkt
 
-                // @TestRuns
                 Unzip.unzipFolder(desktopPath + zipFile, correctionPath);
                 Unzip.checkCorrrectionFolder(correctionPath);
                 Unzip.searchResultFolder(correctionPath);
 
-                // Check File wird hier erstellt
-                // Diese Datei wird benutzt um die Korrektur der einzelnen Gruppen zu bewerten
+                /*
+                 * Es wird geprueft, ob bereits eine 'Check.txt' Datei vorhanden ist
+                 * oder nicht
+                 */
                 if (!checkFilePath.toFile().exists()) {
                     checkFilePath.toFile().createNewFile();
                     System.out.println("Check File wurde erstellt");
@@ -49,9 +60,10 @@ public class Checker {
                 }
 
                 listGroups(correctionPath);
-                System.out.println("Es wurde fertig in die Check.txt geschrieben!");
+                System.out.println("\nEs wurde fertig in die Check.txt geschrieben!");
             } else {
-                System.out.println("Ein Korrektur Ordner besteht schon. Bitte den Ordner vorher l\u00F6schen oder Umbenennen");
+                System.out.println(
+                        "Ein Korrektur Ordner besteht schon. Bitte den Ordner vorher l\u00F6schen oder Umbenennen");
             }
         } catch (Exception e) {
             e.printStackTrace();
@@ -60,6 +72,16 @@ public class Checker {
     }
 
     public class Unzip {
+
+        /**
+         * Bechreibung:
+         * Die Methode ist dazu da um eine zip Datei zu entpacken.
+         * 
+         * @param zipFilePath -> hier wird der Pfad zur zip Datei gebraucht
+         * @param destDir     -> hier soll der Pfad angegeben werden wohin die zip Datei
+         *                    entpackt werden soll
+         */
+
         public static void unzipFolder(String zipFilePath, String destDir) {
             byte[] buffer = new byte[1024];
             File destDirFile = new File(destDir);
@@ -99,34 +121,43 @@ public class Checker {
             }
         }
 
-        // Die Methode durchsucht den 'Korrektur' Ordner nach .zip Dateien
-        // Wenn eine .zip Datei gefunden worden ist, soll er diese
-        // in den 'Result' Ordner entpacken
+        /**
+         * Beschreibung:
+         * Die Methode durchsucht den 'Korrektur' Ordner noch einmal intensiver
+         * nach zip Dateien bzw. nach den Gruppen abgaben.
+         * Wenn welche gefunden worden sind, soll diese zip Datei
+         * in den 'Result' Ordner entpackt werden.
+         * 
+         * @param FilePath -> benoetigt den Pfad zur entpackten Datei von der vorherigen
+         *                 Methode
+         */
         public static void checkCorrrectionFolder(String FilePath) {
             File[] folder = new File(FilePath).listFiles();
             File result;
             for (File f : folder) {
-                if (f.isDirectory()) // pruefen ob f ein Verzeichnis ist, wenn ja dann wir die Methode rekursiv
-                                     // nochmal aufgerufen
+                if (f.isDirectory())
                     checkCorrrectionFolder(f.getAbsolutePath());
 
                 if (f.toString().endsWith(".zip")) {
-                    // System.out.println("ZipDatei Pfad: " + f.getAbsolutePath() + "\n" +
-                    // "destDir Pfad: " + f.getParent());
                     result = new File(f.getParent() + "/Result");
-                    unzipFolder(f.getAbsolutePath(), result.toString()); // wenn eine zip-Datei gefunden worden ist soll
-                                                                         // diese
-                    // noch entpackt werden.
+                    unzipFolder(f.getAbsolutePath(), result.toString());
                 }
             }
         }
+
+        /**
+         * Beschreibung:
+         * Durchsucht den 'Korrektur' Ordner und ruft sich solage rekursiv selber auf
+         * bis der 'Result' Ordner gefunden worden ist.
+         *
+         * @param correctionFolder -> braucht den Pfad des 'Korrektur' Ordners
+         */
 
         public static void searchResultFolder(String correctionFolder) {
             File[] folder = new File(correctionFolder).listFiles();
             for (File f : folder) {
                 if (f.isDirectory() && !f.getName().equals("1_task")) {
                     if (f.getName().equals("Result")) {
-                        // System.out.println("Result Ordner Pfad: " + f.getAbsolutePath());
                         moveFilesFromSubfoldersToFolder(f.getAbsolutePath());
                         System.out.println();
                     }
@@ -138,10 +169,16 @@ public class Checker {
         // Bekommt den Result ordner als uebergabe und soll die ganzen subordner
         // durchgehen
         // und die dateien verschieben
+
+        /**
+         * Beschreibung:
+         * 
+         * @param resultFolder -> benoetigt den Pfad des 'Result' Ordner der jeweiligen
+         *                     aktuellen Gruppe
+         */
         public static void moveFilesFromSubfoldersToFolder(String resultFolder) {
             try {
                 File[] result = new File(resultFolder).listFiles(File::isDirectory);
-                File check = new File(".DS_Store");
                 for (File dirs : result) {
                     String resultPath = dirs.getParent();
                     if (dirs.isDirectory() && !dirs.toString().contains("__MACOSX")) {
@@ -149,8 +186,8 @@ public class Checker {
                         moveFilesFromSubfoldersToFolder(dirs.getAbsolutePath());
                         // Dateien werden nun verschoben
                         File[] files = dirs.listFiles(new FileFilter() {
-                            // damit wird sichergestellt, dass keine versteckten Dateien 
-                            // mit in den Array aufgenommen z.B. '.DS_Store'
+                            // damit wird sichergestellt, dass keine versteckten Dateien
+                            // mit in das Array aufgenommen z.B. '.DS_Store'
                             @Override
                             public boolean accept(File pathname) {
                                 return !pathname.isHidden();
@@ -158,13 +195,14 @@ public class Checker {
                         });
                         for (File f : files) {
                             if ((f.toString().endsWith(".java") || f.toString().endsWith(".pdf")
-                                    || f.toString().endsWith(".txt")) && !check.isHidden())
-                                System.out.println("Datei: " + f.getName() + " wurde erfolgreich nach " + resultPath
-                                        + " verschoben");
-                            Path sourcePath = f.toPath();
-                            Path targetPath = new File(resultPath).toPath();
-                            Path desPath = targetPath.resolve(f.getName());
-                            Files.move(sourcePath, desPath);
+                                    || f.toString().endsWith(".txt"))) {
+                                // System.out.println("Datei: " + f.getName() + " wurde erfolgreich nach " + resultPath
+                                //         + " verschoben");
+                                Path sourcePath = f.toPath();
+                                Path targetPath = new File(resultPath).toPath();
+                                Path desPath = targetPath.resolve(f.getName());
+                                Files.move(sourcePath, desPath);
+                            }
                         }
                     }
                 }
@@ -179,7 +217,7 @@ public class Checker {
         Arrays.sort(groups);
         for (File group : groups) {
             String groupname = group.getName().replaceAll("^(\\w+)_.*$", "$1");
-            System.out.println("\nGruppennamen: " + groupname);
+            System.out.println(groupname.startsWith("U") ? "\nGruppennamen: " + groupname : "");
             // normalerweise wird hier die writeIntoFile() Methode aufgerufen
             if (group.isDirectory())
                 getResultFolder(group, groupname);
