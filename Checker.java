@@ -25,7 +25,7 @@ public class Checker {
 
     /*
      * Hier muessen Benutzerspezifische Aenderungen vorgenommen werden.
-     * Weitere infos sind in der README Datei zu lesen
+     * Weitere infos sind in der README Datei zu lesen.
      */
     private static final String desktopPath = "/Users/tomlauth/Desktop/";
     private static final String zipFile = "Uebungsblatt_5.zip";
@@ -43,15 +43,11 @@ public class Checker {
              * des eigentlichen Korrektur Ordners existiert
              */
             if (!new File(correctionPath).exists()) {
-
                 Unzip.unzipFolder(desktopPath + zipFile, correctionPath);
                 Unzip.checkCorrrectionFolder(correctionPath);
                 Unzip.searchResultFolder(correctionPath);
 
-                /*
-                 * Es wird geprueft, ob bereits eine 'Check.txt' Datei vorhanden ist
-                 * oder nicht
-                 */
+                // Es wird geprueft ob bereits eine 'Check.txt' Datei vorhanden ist oder nicht
                 if (!checkFilePath.toFile().exists()) {
                     checkFilePath.toFile().createNewFile();
                     System.out.println("Check File wurde erstellt");
@@ -62,13 +58,11 @@ public class Checker {
                 listGroups(correctionPath);
                 System.out.println("\nEs wurde fertig in die Check.txt geschrieben!");
             } else {
-                System.out.println(
-                        "Ein Korrektur Ordner besteht schon. Bitte den Ordner vorher l\u00F6schen oder Umbenennen");
+                System.out.println("Korrektur Ordner existiert bereits schon. Bitte vorher l\u00F6schen!");
             }
         } catch (Exception e) {
             e.printStackTrace();
         }
-
     }
 
     public class Unzip {
@@ -166,15 +160,14 @@ public class Checker {
             }
         }
 
-        // Bekommt den Result ordner als uebergabe und soll die ganzen subordner
-        // durchgehen
-        // und die dateien verschieben
-
         /**
          * Beschreibung:
-         * Geht den 'Result' der jeweiligen Gruppe durch und durchsucht nach Unterordner,
-         * falls es welche gibt werden die dateien von dort in den 'Result' Ordner verschoben,
-         * sodass am Ende alle Dateien im 'Result' Ordner liegen und man keine Unterordner mehr hat
+         * Geht den 'Result' der jeweiligen Gruppe durch und durchsucht nach
+         * Unterordner,
+         * falls es welche gibt werden die dateien von dort in den 'Result' Ordner
+         * verschoben,
+         * sodass am Ende alle Dateien im 'Result' Ordner liegen und man keine
+         * Unterordner mehr hat
          * 
          * @param resultFolder -> benoetigt den Pfad des 'Result' Ordner der jeweiligen
          *                     aktuellen Gruppe
@@ -190,7 +183,7 @@ public class Checker {
                         File[] files = dirs.listFiles(new FileFilter() {
                             @Override
                             public boolean accept(File pathname) {
-                                // Damit wird sichergestellt, dass keine versteckten 
+                                // Damit wird sichergestellt, dass keine versteckten
                                 // Dateien mit verschoben werden
                                 return !pathname.isHidden();
                             }
@@ -217,7 +210,8 @@ public class Checker {
      * Sortiert die Gruppen aufsteigend, so dass man eine Normale Reihenfolge hat.
      * Außerdem filtert sie den Gruppennamen aus einen langem String
      * 
-     * @param correctionPath -> Bekommt als Parameter den Pfad des 'Korrektur' Ordners
+     * @param correctionPath -> Bekommt als Parameter den Pfad des 'Korrektur'
+     *                       Ordners
      */
     public static void listGroups(String correctionPath) {
         File[] groups = new File(correctionPath).listFiles();
@@ -231,12 +225,14 @@ public class Checker {
     }
 
     /**
-     * Beschreibung: 
-     * Die Methode ruft sich solange rekursiv selber auf, bis in einer Gruppe den 'Result'
+     * Beschreibung:
+     * Die Methode ruft sich solange rekursiv selber auf, bis in einer Gruppe den
+     * 'Result'
      * Ordner gefunden hat.
      * 
-     * @param group -> benoetigt die Gruppe als aktuelle File / Ordner
-     * @param groupname -> Bekommt als Parameter den gefilterten Gruppenname der jeweiligen Gruppe
+     * @param group     -> benoetigt die Gruppe als aktuelle File / Ordner
+     * @param groupname -> Bekommt als Parameter den gefilterten Gruppenname der
+     *                  jeweiligen Gruppe
      */
     public static void getResultFolder(File group, String groupname) {
         File[] dirs = group.listFiles();
@@ -251,15 +247,17 @@ public class Checker {
     }
 
     /**
-     * Beschreibung: 
-     * Es wird in der Methode nach .java und .txt Dateien gefiltert. 
+     * Beschreibung:
+     * Es wird in der Methode nach .java und .txt Dateien gefiltert.
      * Damit werden dann jeweils die entsprechenden Methoden aufgerufen.
      * 
-     * @param result -> Bekommt als parameter den 'Result' Ordner der aktuellen Gruppe als File uebergeben
-     * @param groupname -> Bekommt als Parameter den gefilterten Gruppenname der jeweiligen Gruppe
+     * @param result    -> Bekommt als parameter den 'Result' Ordner der aktuellen
+     *                  Gruppe als File uebergeben
+     * @param groupname -> Bekommt als Parameter den gefilterten Gruppenname der
+     *                  jeweiligen Gruppe
      */
     public static void writeIntoFile(File result, String groupname) {
-        File[] files = result.listFiles(e -> e.isFile() && e.getName().endsWith(".java")); 
+        File[] files = result.listFiles(e -> e.isFile() && e.getName().endsWith(".java"));
         File[] txtFile = result.listFiles(e -> e.isFile() && e.getName().endsWith(".txt"));
 
         Arrays.stream(txtFile).forEach(e -> {
@@ -274,12 +272,14 @@ public class Checker {
     }
 
     /**
-     * Beschreibung: 
-     * Die Methode nimmt als Grundlage die 'Mitglieder.txt' und schreibt den Inhalt davon
-     * in die 'Check.txt' Datei. Dabei werden die anderen Gruppen jeweilis immer angehaengt,
+     * Beschreibung:
+     * Die Methode nimmt als Grundlage die 'Mitglieder.txt' und schreibt den Inhalt
+     * davon
+     * in die 'Check.txt' Datei. Dabei werden die anderen Gruppen jeweilis immer
+     * angehaengt,
      * sodass alle Mitglieder in einer Datei stehen.
      * 
-     * @param file -> Braucht als Parameter den Ordner der aktuellen Gruppe
+     * @param file      -> Braucht als Parameter den Ordner der aktuellen Gruppe
      * @param groupname -> Benoetigt noch von der Gruppe den Gruppennamen
      */
     public static void writeMembersToFile(File file, String groupname) {
@@ -305,11 +305,13 @@ public class Checker {
 
     /**
      * Beschreibung:
-     * Die Methode generiert einen String, der als Aufbau n Aufgaben und eine Gesamtzahl enthaelt.
+     * Die Methode generiert einen String, der als Aufbau n Aufgaben und eine
+     * Gesamtzahl enthaelt.
      * 
-     * @param tasks -> Bekommt als Parameter die Anzahl der zu bearbeitenden Aufgaben.
-     * @return -> Die Methode gibt einen String zurueck, der aus den Aufgaben 0 .. -> n 
-     * und einer Gesamtzahl besteht. 
+     * @param tasks -> Bekommt als Parameter die Anzahl der zu bearbeitenden
+     *              Aufgaben.
+     * @return -> Die Methode gibt einen String zurueck, der aus den Aufgaben 0 .. -> n
+     *              und einer Gesamtzahl besteht.
      */
     public static String generateTasks(int tasks) {
         String result = "";
