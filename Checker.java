@@ -31,10 +31,12 @@ public class Checker {
     private static final String zipFile = "Uebungsblatt_5.zip";
     private static final String correctionPath = desktopPath + "Korrektur/";
 
+    private static final int COUNT_OF_TASKS = 5;
+
     private static Path checkFilePath = Paths.get(correctionPath + "Check.txt");
     private static File checkFile = checkFilePath.toFile();
 
-    private static final int COUNT_OF_TASKS = 5;
+    private static Checker c;
 
     public static void main(String[] args) {
         try {
@@ -43,9 +45,13 @@ public class Checker {
              * des eigentlichen Korrektur Ordners existiert
              */
             if (!new File(correctionPath).exists()) {
-                Unzip.unzipFolder(desktopPath + zipFile, correctionPath);
-                Unzip.checkCorrrectionFolder(correctionPath);
-                Unzip.searchResultFolder(correctionPath);
+
+                c = new Checker();
+                Checker.Unzip u = c.new Unzip();
+
+                u.unzipFolder(desktopPath + zipFile, correctionPath);
+                u.checkCorrrectionFolder(correctionPath);
+                u.searchResultFolder(correctionPath);
 
                 // Es wird geprueft ob bereits eine 'Check.txt' Datei vorhanden ist oder nicht
                 if (!checkFilePath.toFile().exists()) {
@@ -55,7 +61,7 @@ public class Checker {
                     System.out.println("Check File exisitiert bereits schon");
                 }
 
-                listGroups(correctionPath);
+                c.listGroups(correctionPath);
                 System.out.println("\nEs wurde fertig in die Check.txt geschrieben!");
             } else {
                 System.out.println("Korrektur Ordner existiert bereits schon. Bitte vorher l\u00F6schen!");
@@ -76,7 +82,7 @@ public class Checker {
          *                    entpackt werden soll
          */
 
-        public static void unzipFolder(String zipFilePath, String destDir) {
+        public void unzipFolder(String zipFilePath, String destDir) {
             byte[] buffer = new byte[1024];
             File destDirFile = new File(destDir);
             if (!destDirFile.exists()) {
@@ -125,7 +131,7 @@ public class Checker {
          * @param FilePath -> benoetigt den Pfad zur entpackten Datei von der vorherigen
          *                 Methode
          */
-        public static void checkCorrrectionFolder(String FilePath) {
+        public void checkCorrrectionFolder(String FilePath) {
             File[] folder = new File(FilePath).listFiles();
             File result;
             for (File f : folder) {
@@ -147,7 +153,7 @@ public class Checker {
          * @param correctionFolder -> braucht den Pfad des 'Korrektur' Ordners
          */
 
-        public static void searchResultFolder(String correctionFolder) {
+        public void searchResultFolder(String correctionFolder) {
             File[] folder = new File(correctionFolder).listFiles();
             for (File f : folder) {
                 if (f.isDirectory() && !f.getName().equals("1_task")) {
@@ -172,7 +178,7 @@ public class Checker {
          * @param resultFolder -> benoetigt den Pfad des 'Result' Ordner der jeweiligen
          *                     aktuellen Gruppe
          */
-        public static void moveFilesFromSubfoldersToFolder(String resultFolder) {
+        public void moveFilesFromSubfoldersToFolder(String resultFolder) {
             try {
                 File[] result = new File(resultFolder).listFiles(File::isDirectory);
                 for (File dirs : result) {
@@ -213,7 +219,7 @@ public class Checker {
      * @param correctionPath -> Bekommt als Parameter den Pfad des 'Korrektur'
      *                       Ordners
      */
-    public static void listGroups(String correctionPath) {
+    public void listGroups(String correctionPath) {
         File[] groups = new File(correctionPath).listFiles();
         Arrays.sort(groups);
         for (File group : groups) {
@@ -234,7 +240,7 @@ public class Checker {
      * @param groupname -> Bekommt als Parameter den gefilterten Gruppenname der
      *                  jeweiligen Gruppe
      */
-    public static void getResultFolder(File group, String groupname) {
+    public void getResultFolder(File group, String groupname) {
         File[] dirs = group.listFiles();
         for (File dir : dirs) {
             if (dir.isDirectory() && !dir.getName().equals("1_task")) {
@@ -256,7 +262,7 @@ public class Checker {
      * @param groupname -> Bekommt als Parameter den gefilterten Gruppenname der
      *                  jeweiligen Gruppe
      */
-    public static void writeIntoFile(File result, String groupname) {
+    public void writeIntoFile(File result, String groupname) {
         File[] files = result.listFiles(e -> e.isFile() && e.getName().endsWith(".java"));
         File[] txtFile = result.listFiles(e -> e.isFile() && e.getName().endsWith(".txt"));
 
@@ -282,7 +288,7 @@ public class Checker {
      * @param file      -> Braucht als Parameter den Ordner der aktuellen Gruppe
      * @param groupname -> Benoetigt noch von der Gruppe den Gruppennamen
      */
-    public static void writeMembersToFile(File file, String groupname) {
+    public void writeMembersToFile(File file, String groupname) {
         try {
             BufferedReader reader = new BufferedReader(new FileReader(file));
             BufferedWriter writer = new BufferedWriter(new FileWriter(checkFile, true));
@@ -313,7 +319,7 @@ public class Checker {
      * @return -> Die Methode gibt einen String zurueck, der aus den Aufgaben 0 .. -> n
      *              und einer Gesamtzahl besteht.
      */
-    public static String generateTasks(int tasks) {
+    public String generateTasks(int tasks) {
         String result = "";
         for (int i = 1; i <= tasks; i++) {
             String tmp = "Aufgabe " + i + ": " + "0" + "\n";
@@ -324,7 +330,7 @@ public class Checker {
     }
 
     @Deprecated
-    public static void checkUmlauts(String file) {
+    public void checkUmlauts(String file) {
         try {
             File tmp = new File(file);
             File[] files = tmp.listFiles();
